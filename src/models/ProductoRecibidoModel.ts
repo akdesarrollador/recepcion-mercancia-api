@@ -1,4 +1,4 @@
-import pool from "../pool";
+import { poolAK } from "../pool";
 import readSQL from "../helpers/readSQL";
 import sql from "mssql";
 import RecepcionModel from "./RecepcionModel";
@@ -14,15 +14,18 @@ class ProductoRecibidoModel {
   ): Promise<boolean> {
     const recepcionExists = await RecepcionModel.exists(recepcion);
     if (!recepcionExists) {
-      throw new Error(`No existe una recepción con el ID: ${recepcion}`);
+      return Promise.reject(
+        new Error(`No existe una recepción con el ID: ${recepcion}`)
+      );
     }
 
-    const productoExists = await this.exists(codigo, recepcion);
-    if (productoExists) {
-      throw new Error(`El producto con código ${codigo} ya ha sido recibido en la recepción con ID: ${recepcion}`);
+    if (cantidad_recibida > cantidad_odc) {
+      return Promise.reject(
+        new Error("La cantidad recibida no puede ser mayor a la cantidad de la orden.")
+      );
     }
 
-    const transaction = new sql.Transaction(pool);
+    const transaction = new sql.Transaction(poolAK);
     await transaction.begin();
 
     try {
@@ -40,13 +43,15 @@ class ProductoRecibidoModel {
       return true;
     } catch (error) {
       await transaction.rollback();
-      throw new Error(`Error de transacción SQL: ${error}`);
+      return Promise.reject(
+        new Error(`${error}`)
+      );
     }
   }
 
   static async exists(codigo: string, recepcion: number): Promise<boolean> {
     try {
-      const result = await pool
+      const result = await poolAK
         .request()
         .input("codigo", sql.VarChar, codigo)
         .input("recepcion", sql.Int, recepcion)
@@ -54,7 +59,9 @@ class ProductoRecibidoModel {
 
       return result.recordset.length > 0;
     } catch (error) {
-      throw new Error(`Error al verificar la existencia del producto recibido: ${error}`);
+      return Promise.reject(
+        new Error(`Error al verificar la existencia del producto recibido: ${error}`)
+      );
     }
   }
 }

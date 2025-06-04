@@ -1,23 +1,25 @@
-import pool from "../pool";
+import { poolaBC } from "../pool";
 import readSQL from "../helpers/readSQL";
 import sql from "mssql";
-import { OrdenCompra, Productos, Ubicacion } from "../helpers/interfaces/ordencompra.interface";
+import {
+  OrdenCompra,
+  Producto,
+  Ubicacion,
+} from "../helpers/interfaces/ordencompra.interface";
 
 class OrdenCompraModel {
-  static async get(numeroOrden: string, ubicacion: Ubicacion): Promise<OrdenCompra | null> {
+  static async get(
+    numeroOrden: string,
+  ): Promise<OrdenCompra | null> {
     try {
-      const result = await pool
+      const result = await poolaBC
         .request()
         .input("cNroped", sql.Char, numeroOrden)
         .query(readSQL("orden-compra/getByNumeroOrden"));
 
-      if (result.recordset.length === 0) {
-        throw new Error(`No se encontró la orden de compra con número: ${numeroOrden}`);
-      }
+      if (result.recordset.length === 0) return null;
 
       const data = result.recordset[0];
-      const productos = await this.getProductsByLocation(numeroOrden, ubicacion);
-
       return {
         id: data.idOCompra,
         numeroOrden: data.cNroped,
@@ -30,8 +32,6 @@ class OrdenCompraModel {
         fechaPedido: data.dFechape,
         anulada: data.IAnulada,
         diasVen: data.nDiasven,
-        totalProductos: productos.length,
-        productos,
         observacion1: data.cObservacion1,
         observacion2: data.cObservacion2,
         observacion3: data.cObservacion3,
@@ -40,45 +40,53 @@ class OrdenCompraModel {
         fechaCreacion: data.FechaCreacion,
         fechaRE: data.dFechare,
       } as OrdenCompra;
-    } catch (error) {
-      throw new Error(`Error al obtener la orden de compra: ${error}`);
+    } catch (error: any) {
+      return Promise.reject(
+        new Error(`${error}`)
+      );
     }
   }
 
   static async exists(numeroOrden: string): Promise<boolean> {
     try {
-      const result = await pool
+      const result = await poolaBC
         .request()
         .input("cNroped", sql.Char, numeroOrden)
         .query(readSQL("orden-compra/exists"));
 
       return result.recordset.length > 0;
     } catch (error) {
-      throw new Error(`Error al verificar la existencia de la orden de compra: ${error}`);
+      return Promise.reject(
+        new Error(`Error al verificar la existencia de la orden de compra: ${error}`)
+      );
     }
   }
 
-  static async getProductsByLocation(numeroOrden: string, ubicacion: Ubicacion): Promise<Productos[] | []> {
+  static async getProductsByLocation(
+    numeroOrden: string,
+    ubicacion: Ubicacion
+  ): Promise<Producto[]> {
     try {
-      const result = await pool
+      const result = await poolaBC
         .request()
         .input("cNroped", sql.Char, numeroOrden)
         .input("cSucursal", sql.Char, ubicacion)
         .query(readSQL("orden-compra/getProductsByLocation"));
 
-      
-      if (result.recordset.length === 0) {
-        throw new Error(`No se encontraron productos para la orden de compra: ${numeroOrden} en la ubicación: ${ubicacion}`);
-      }
+      if (result.recordset.length === 0) return [];
 
       return result.recordset.map((item: any) => ({
         codigo: item.codigo_producto,
         descripcion: item.descripcion,
         cantidad: item.cantidad,
-        total_solicitado: item.total_solicitado,
-      }) as Productos);
+        total_solicitado: item.total_solicitado || 0, // Asignar 0 si no existe
+      })) as Producto[];
     } catch (error) {
-      throw new Error(`Error al obtener los productos por ubicacion y numero de orden: ${error}`);
+      return Promise.reject(
+        new Error(
+          `Error al obtener los productos por ubicacion y numero de orden: ${error}`
+        )
+      );
     }
   }
 }

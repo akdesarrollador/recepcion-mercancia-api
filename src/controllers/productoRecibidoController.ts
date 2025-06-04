@@ -27,9 +27,8 @@ class ProductoRecibidoController {
       } else {
         res.status(500).json({ error: "Error al crear el producto recibido" });
       }
-    } catch (error) {
-      console.error("Error al crear el producto recibido:", error);
-      res.status(500).json({ error: "Error interno del servidor" });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   }
 }

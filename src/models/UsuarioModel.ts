@@ -1,4 +1,4 @@
-import pool from "../pool";
+import { poolAK } from "../pool";
 import readSQL from "../helpers/readSQL";
 import sql from "mssql";
 import { Usuario } from "../helpers/interfaces/usuario.interface";
@@ -6,7 +6,7 @@ import { Usuario } from "../helpers/interfaces/usuario.interface";
 class UsuarioModel {
   static async getByCodigoWeb(codigoWeb: string): Promise<Usuario | null> {
     try {
-      const result = await pool
+      const result = await poolAK
         .request()
         .input("cCodigoWEB", sql.VarChar, codigoWeb)
         .query(readSQL("usuario/getByCodigoWeb"));

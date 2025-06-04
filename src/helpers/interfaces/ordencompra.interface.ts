@@ -5,7 +5,6 @@ export interface OrdenCompra {
   fechaPedido: Date;
   anulada: boolean;
   diasVen: number;
-  productos: Productos[];
   observacion1: string;
   observacion2: string;
   observacion3: string;
@@ -22,11 +21,11 @@ export interface Proveedor {
   rif: string;
 }
 
-export interface Productos {
+export interface Producto {
   codigo: string,
   descripcion: string;
   cantidad: number;
-  total_en_orden?: number;
+  total_solicitado?: number;
 }
 
 export type Ubicacion =

@@ -1,16 +1,24 @@
 import config from './config'
 import { server } from './app'
-import pool from './pool'
+import {poolAK, poolaBC } from './pool'
 
 server.listen(config.PORT, async () => {
     console.log(`🚀Recepcion de mercancia API corriendo en el puerto ${config.PORT}`)
-    pool.connect()
+    poolAK.connect()
     .then(() => {
-        console.log(`Conectado a base de datos...`);
+        console.log(`Conectado a base de datos AK...`);
     })
     .catch(() => {
-        console.error(`Ha ocurrido un error al conectarse a la base de datos...`);
+        console.error(`Ha ocurrido un error al conectarse a la base de datos AK...`);
     })
+
+    poolaBC.connect()
+    .then(() => {
+        console.log(`Conectado a base de datos aBC...`);
+    })
+    .catch(() => {
+        console.error(`Ha ocurrido un error al conectarse a la base de datos aBC...`);
+    });
 })
 
 process.on('unhandledRejection', (err: Error) => {
@@ -25,7 +33,7 @@ process.on('uncaughtException', (err: Error) => {
 
 process.on('SIGINT', () => {
     console.log('SIGINT');
-    pool.close()
+    poolAK.close()
     .then(() => {
         console.log('Pool de conexiones cerrado...');
         process.exit(0);
@@ -34,17 +42,37 @@ process.on('SIGINT', () => {
         console.error('Error al cerrar el pool de conexiones:', err);
         process.exit(1);
     });
+
+    poolaBC.close()
+    .then(() => {
+        console.log('Pool de conexiones aBC cerrado...');
+        process.exit(0);
+    })  
+    .catch((err) => {
+        console.error('Error al cerrar el pool de conexiones aBC:', err);
+        process.exit(1);
+    });
 });
 
 process.on('SIGTERM', () => {
     console.log('SIGTERM');
-    pool.close()
+    poolAK.close()
     .then(() => {
         console.log('Pool de conexiones cerrado...');
         process.exit(0);
     })
     .catch((err) => {
         console.error('Error al cerrar el pool de conexiones:', err);
+        process.exit(1);
+    });
+
+    poolaBC.close()
+    .then(() => {
+        console.log('Pool de conexiones aBC cerrado...');
+        process.exit(0);
+    })
+    .catch((err) => {
+        console.error('Error al cerrar el pool de conexiones aBC:', err);
         process.exit(1);
     });
 });

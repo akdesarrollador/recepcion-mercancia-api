@@ -1,5 +1,5 @@
 import { Recepcion } from "../schemas/schemas";
-import pool from "../pool";
+import { poolAK } from "../pool";
 import readSQL from "../helpers/readSQL";
 import sql from "mssql";
 import OrdenCompraModel from "./OrdenCompraModel";
@@ -9,9 +9,17 @@ class RecepcionModel {
     numeroOrden: string,
     proveedor: string
   ): Promise<{ success: boolean; id?: number }> {
-    const receptionExists = await this.getByOrderNumber(numeroOrden);
-    if (receptionExists) {
-      throw new Error(`Ya existe una recepción para la orden de compra número ${numeroOrden}.`);
+    const reception = await this.getByOrderNumber(numeroOrden);
+    const lastModified = reception?.fecha_actualizacion;
+    const receptionPeriodExpired =
+      lastModified
+      ? (Date.now() - new Date(lastModified).getTime()) > 7 * 24 * 60 * 60 * 1000
+      : false;
+
+    if(reception && receptionPeriodExpired) {
+      throw new Error(
+        `Plazo de recepción expirado para la orden de compra número ${numeroOrden}.`
+      );
     }
 
     const orderExists = await OrdenCompraModel.exists(numeroOrden);
@@ -19,23 +27,27 @@ class RecepcionModel {
       throw new Error(`No existe la orden de compra numero ${numeroOrden}.`);
     }
 
-    const transaction = new sql.Transaction(pool);
+    const transaction = new sql.Transaction(poolAK);
     await transaction.begin();
 
     try {
+      console.log('numero orden:', numeroOrden);
+      console.log('proveedor:', proveedor);
       const result = await transaction
         .request()
         .input("numero_orden", sql.VarChar, numeroOrden)
-        .input("proveedor", sql.NVarChar(150), proveedor)
+        .input("proveedor", sql.VarChar, proveedor)
         .query(readSQL("recepcion/create"));
 
       await transaction.commit();
 
-      const id = result.recordset?.[0]?.recepcion_id;
+      const id = result.recordset?.[0]?.id;
       return { success: true, id };
     } catch (error) {
       await transaction.rollback();
-      throw new Error(`Error de transacción SQL: ${error}`);
+      return Promise.reject(
+        new Error(`Error al crear la recepcion: ${error}`)
+      );
     }
   }
 
@@ -43,16 +55,12 @@ class RecepcionModel {
     orderNumber: string
   ): Promise<Recepcion | null> {
     try {
-      const result = await pool
+      const result = await poolAK
         .request()
         .input("numero_orden", sql.VarChar, orderNumber)
         .query(readSQL("recepcion/getByOrderNumber"));
 
-      if (result.recordset.length === 0) {
-        throw new Error(
-          `No se encontró la recepción para la orden de compra número: ${orderNumber}`
-        );
-      }
+      if (result.recordset.length === 0) return null;
 
       const data = result.recordset[0];
 
@@ -64,20 +72,24 @@ class RecepcionModel {
         fecha_actualizacion: data.fecha_actualizacion,
       };
     } catch (error) {
-      throw new Error(`Error al obtener la recepcion por numero de orden: ${error}`);
+      return Promise.reject(
+        new Error(`Error al obtener la recepcion por numero de orden: ${error}`)
+      );
     }
   }
 
   static async exists(id: number): Promise<boolean> {
     try {
-      const result = await pool
+      const result = await poolAK
         .request()
         .input("id", sql.Int, id)
         .query(readSQL("recepcion/exists"));
 
       return result.recordset.length > 0;
     } catch (error) {
-      throw new Error(`Error al verificar la existencia de la recepcion: ${error}`);
+      return Promise.reject(
+        new Error(`Error al verificar la existencia de la recepcion: ${error}`)
+      );
     }
   }
 }
