@@ -31,8 +31,6 @@ class RecepcionModel {
     await transaction.begin();
 
     try {
-      console.log('numero orden:', numeroOrden);
-      console.log('proveedor:', proveedor);
       const result = await transaction
         .request()
         .input("numero_orden", sql.VarChar, numeroOrden)
