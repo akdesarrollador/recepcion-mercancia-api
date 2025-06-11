@@ -6,11 +6,11 @@ import {
   Producto,
   Ubicacion,
 } from "../helpers/interfaces/ordencompra.interface";
+import ProductoRecibidoModel from "./ProductoRecibidoModel";
+import getShortDescription from "../helpers/getShortDescription";
 
 class OrdenCompraModel {
-  static async get(
-    numeroOrden: string,
-  ): Promise<OrdenCompra | null> {
+  static async get(numeroOrden: string): Promise<OrdenCompra | null> {
     try {
       const result = await poolaBC
         .request()
@@ -41,9 +41,7 @@ class OrdenCompraModel {
         fechaRE: data.dFechare,
       } as OrdenCompra;
     } catch (error: any) {
-      return Promise.reject(
-        new Error(`${error}`)
-      );
+      return Promise.reject(new Error(`${error}`));
     }
   }
 
@@ -57,7 +55,9 @@ class OrdenCompraModel {
       return result.recordset.length > 0;
     } catch (error) {
       return Promise.reject(
-        new Error(`Error al verificar la existencia de la orden de compra: ${error}`)
+        new Error(
+          `Error al verificar la existencia de la orden de compra: ${error}`
+        )
       );
     }
   }
@@ -75,12 +75,24 @@ class OrdenCompraModel {
 
       if (result.recordset.length === 0) return [];
 
-      return result.recordset.map((item: any) => ({
-        codigo: item.codigo_producto,
-        descripcion: item.descripcion,
-        cantidad: item.cantidad,
-        total_solicitado: item.total_solicitado || 0, // Asignar 0 si no existe
-      })) as Producto[];
+      const productos = await Promise.all(
+        result.recordset.map(async (item: any) => {
+          const recibido =
+            await ProductoRecibidoModel.getUnitsReceivedByProduct(
+              item.codigo_producto,
+              numeroOrden
+            );
+          return {
+            codigo: item.codigo_producto,
+            descripcion: getShortDescription(item.descripcion),
+            solicitado_odc: item.total_solicitado || 0,
+            solicitado_tienda: item.cantidad,
+            recibido,
+          } as Producto;
+        })
+      );
+
+      return productos;
     } catch (error) {
       return Promise.reject(
         new Error(

@@ -10,6 +10,7 @@ class AuthController {
             const user = await UsuarioModel.getByCodigoWeb(password);
 
             if (!user) {
+                console.log('Credenciales inválidas');
                 res.status(401).json({ message: 'Credenciales Inválidas' });
                 return;
             }

@@ -1,16 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import CustomError from "../helpers/customError";
-import { ConnectionError } from "mssql";
+// import { ConnectionError } from "mssql";
 
 const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
     console.log(err); 
     
     let mensaje = 'Ha ocurrido un error inesperado.'
     let codigo = 500;
-
-    if (err instanceof ConnectionError) {
-        mensaje = 'Ha ocurrido un error al comunicarse con la base de datos. Por favor, comuníquese con soporte.';
-    }
 
     if (err instanceof CustomError) {
         mensaje = err.message;

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import OrdenCompraModel from "../models/OrdenCompraModel";
+import formatLocation from "../helpers/formatLocations";
 
 class OrdenCompraController {
   async get(req: Request, res: Response): Promise<void> {
@@ -17,7 +18,10 @@ class OrdenCompraController {
         ubicacion
       );
 
-      res.status(200).json({ ordenCompra, productos });
+      res.status(200).json({
+        ordenCompra: { ...ordenCompra, recibirEn: formatLocation(ubicacion) },
+        productos,
+      });
     } catch (error: any) {
       res.status(500).json({ error: `${error.message}` });
     }

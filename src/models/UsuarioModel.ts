@@ -12,7 +12,7 @@ class UsuarioModel {
         .query(readSQL("usuario/getByCodigoWeb"));
   
       if (result.recordset.length === 0) {
-        throw new Error(`No se encontró el usuario con código web: ${codigoWeb}`);
+        return null;
       }
   
       const data = result.recordset[0];

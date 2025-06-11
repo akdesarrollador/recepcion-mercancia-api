@@ -22,10 +22,11 @@ export interface Proveedor {
 }
 
 export interface Producto {
-  codigo: string,
+  codigo: string;
   descripcion: string;
-  cantidad: number;
-  total_solicitado?: number;
+  solicitado_odc?: number;
+  solicitado_tienda: number;
+  recibido?: number;
 }
 
 export type Ubicacion =
@@ -43,5 +44,4 @@ export type Ubicacion =
   | "FC05"
   | "FC06"
   | "FC07"
-  | "HC01"
-  ;
+  | "HC01";

@@ -2,6 +2,7 @@ import { poolAK } from "../pool";
 import readSQL from "../helpers/readSQL";
 import sql from "mssql";
 import RecepcionModel from "./RecepcionModel";
+import getShortDescription from "../helpers/getShortDescription";
 
 class ProductoRecibidoModel {
   static async create(
@@ -21,7 +22,9 @@ class ProductoRecibidoModel {
 
     if (cantidad_recibida > cantidad_odc) {
       return Promise.reject(
-        new Error("La cantidad recibida no puede ser mayor a la cantidad de la orden.")
+        new Error(
+          "La cantidad recibida no puede ser mayor a la cantidad de la orden."
+        )
       );
     }
 
@@ -32,7 +35,7 @@ class ProductoRecibidoModel {
       await transaction
         .request()
         .input("codigo", sql.VarChar, codigo)
-        .input("descripcion", sql.VarChar, descripcion)
+        .input("descripcion", sql.VarChar, getShortDescription(descripcion))
         .input("cantidad_odc", sql.Numeric, cantidad_odc)
         .input("cantidad_recibida", sql.Numeric, cantidad_recibida)
         .input("receptor", sql.Int, receptor)
@@ -43,9 +46,7 @@ class ProductoRecibidoModel {
       return true;
     } catch (error) {
       await transaction.rollback();
-      return Promise.reject(
-        new Error(`${error}`)
-      );
+      return Promise.reject(new Error(`${error}`));
     }
   }
 
@@ -60,10 +61,34 @@ class ProductoRecibidoModel {
       return result.recordset.length > 0;
     } catch (error) {
       return Promise.reject(
-        new Error(`Error al verificar la existencia del producto recibido: ${error}`)
+        new Error(
+          `Error al verificar la existencia del producto recibido: ${error}`
+        )
+      );
+    }
+  }
+
+  static async getUnitsReceivedByProduct(
+    codigo: string,
+    numeroOrden: string
+  ): Promise<number> {
+    try {
+      const result = await poolAK
+        .request()
+        .input("numero_orden", sql.VarChar, numeroOrden)
+        .input("codigo_producto", sql.VarChar, codigo)
+        .query(readSQL("producto-recibido/getUnitsReceivedByProduct"));
+
+      if (result.recordset.length === 0) return 0;
+
+      return result.recordset[0].recibido || 0;
+    } catch (error) {
+      return Promise.reject(
+        new Error(
+          `Error al obtener las unidades recibidas por producto: ${error}`
+        )
       );
     }
   }
 }
-
 export default ProductoRecibidoModel;
