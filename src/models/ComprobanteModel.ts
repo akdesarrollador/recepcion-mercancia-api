@@ -21,26 +21,22 @@ class ComprobanteModel {
       }
 
       const originalFileName = file.originalname;
-      console.log("originalFileName: ", originalFileName);
       const extension = originalFileName.substring(
         originalFileName.lastIndexOf(".")
       );
-      console.log("extension: ", extension);
 
       const newName = renameBillImg(location, numeroOrden);
-      console.log("newName: ", newName);
       const renamedFileName = newName + extension;
-      console.log("renamedFileName: ", renamedFileName);
 
       if (config.PATH_FILES) {
+        console.log("config path files:", config.PATH_FILES);
         const savePath = path.join(config.PATH_FILES, renamedFileName);
+        console.log("save path:", savePath);
         await fs.promises.writeFile(savePath, file.buffer);
+        console.log("Archivo guardado");
       } else {
         throw new Error("La ruta de archivos no está configurada.");
       }
-
-      console.log("recepcion: ", recepcion);
-      console.log("recepcion typeof: ", typeof recepcion);
 
       const transaction = new sql.Transaction(poolaBC);
       await transaction.begin();
@@ -51,7 +47,6 @@ class ComprobanteModel {
         .query(readSQL("comprobante/create"));
 
       await transaction.commit();
-      console.log("Comprobante creado exitosamente");
       return true;
     } catch (error) {
       throw new Error(`Error al crear el comprobante: ${error}`);
