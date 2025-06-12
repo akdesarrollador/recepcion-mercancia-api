@@ -29,11 +29,22 @@ class ComprobanteModel {
       const renamedFileName = newName + extension;
 
       if (config.PATH_FILES) {
-        console.log("config path files:", config.PATH_FILES);
+        console.log("RAW PATH_FILES:", JSON.stringify(config.PATH_FILES)); //
+        try {
+          await fs.promises.access(config.PATH_FILES, fs.constants.W_OK); //
+        } catch (err: any) {
+          console.error("No puedo acceder a la ruta:", err);
+          throw new Error(`Ruta inaccesible: ${err.message}`);
+        }
+
         const savePath = path.join(config.PATH_FILES, renamedFileName);
-        console.log("save path:", savePath);
-        await fs.promises.writeFile(savePath, file.buffer);
-        console.log("Archivo guardado");
+        try {
+          await fs.promises.writeFile(savePath, file.buffer);
+          console.log("Archivo guardado en:", savePath);
+        } catch (err) {
+          console.error("Error guardando el archivo:", err);
+          throw err; // deja que el catch externo te lo capture si quieres
+        }
       } else {
         throw new Error("La ruta de archivos no está configurada.");
       }
