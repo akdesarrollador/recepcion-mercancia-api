@@ -29,12 +29,12 @@ class ComprobanteModel {
       const renamedFileName = newName + extension;
 
       if (config.PATH_FILES) {
-        try {
-          await fs.promises.access(config.PATH_FILES, fs.constants.W_OK); //
-        } catch (err: any) {
-          console.error("No puedo acceder a la ruta:", err);
-          throw new Error(`Ruta inaccesible: ${err.message}`);
-        }
+        // try {
+        //   await fs.promises.access(config.PATH_FILES, fs.constants.W_OK); //
+        // } catch (err: any) {
+        //   console.error("No puedo acceder a la ruta:", err);
+        //   throw new Error(`Ruta inaccesible: ${err.message}`);
+        // }
 
         const savePath = path.join(config.PATH_FILES, renamedFileName);
         try {
