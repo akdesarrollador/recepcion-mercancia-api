@@ -1,6 +1,7 @@
 SELECT 
 	codigo, 
-	SUM(cantidad_recibida) recibido
+	SUM(recibido) recibido,
+	SUM(unidades_por_bulto) unidades_por_bulto
 FROM 
 	producto_recibido pr
 INNER JOIN 

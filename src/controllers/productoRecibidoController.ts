@@ -7,7 +7,8 @@ class ProductoRecibidoController {
       codigo,
       descripcion,
       cantidad_odc,
-      cantidad_recibida,
+      recibido,
+      unidades_por_bulto,
       recepcion,
     } = req.body;
 
@@ -17,13 +18,16 @@ class ProductoRecibidoController {
         codigo,
         descripcion,
         cantidad_odc,
-        cantidad_recibida,
+        recibido,
+        unidades_por_bulto,
         user,
-        recepcion,
+        recepcion
       );
 
       if (success) {
-        res.status(201).json({ message: "Producto recibido creado exitosamente" });
+        res
+          .status(201)
+          .json({ message: "Producto recibido creado exitosamente" });
       } else {
         res.status(500).json({ error: "Error al crear el producto recibido" });
       }

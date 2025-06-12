@@ -2,8 +2,10 @@ SELECT
     id,
     numero_orden,
     proveedor,
+    sucursal,
     fecha_recepcion,
-    fecha_actualizacion 
+    procesado,
+    confirmacion
 FROM 
     recepcion 
 WHERE 

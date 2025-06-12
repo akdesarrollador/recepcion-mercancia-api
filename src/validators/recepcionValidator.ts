@@ -17,4 +17,12 @@ export const validateCreateRecepcion = [
     .withMessage("El proveedor debe ser una cadena de texto")
     .trim()
     .escape(),
+  body("sucursal")
+    .exists()
+    .notEmpty()
+    .withMessage("La sucursal es requerida")
+    .isString()
+    .withMessage("La sucursal debe ser una cadena de texto")
+    .trim()
+    .escape(),
 ];

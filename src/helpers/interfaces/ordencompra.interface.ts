@@ -26,7 +26,8 @@ export interface Producto {
   descripcion: string;
   solicitado_odc?: number;
   solicitado_tienda: number;
-  recibido?: number;
+  recibido: number;
+  unidades_por_bulto: number;
 }
 
 export type Ubicacion =

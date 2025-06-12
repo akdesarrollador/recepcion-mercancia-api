@@ -77,7 +77,7 @@ class OrdenCompraModel {
 
       const productos = await Promise.all(
         result.recordset.map(async (item: any) => {
-          const recibido =
+          const recibidoResult =
             await ProductoRecibidoModel.getUnitsReceivedByProduct(
               item.codigo_producto,
               numeroOrden
@@ -87,7 +87,8 @@ class OrdenCompraModel {
             descripcion: getShortDescription(item.descripcion),
             solicitado_odc: item.total_solicitado || 0,
             solicitado_tienda: item.cantidad,
-            recibido,
+            recibido: recibidoResult.recibido,
+            unidades_por_bulto: recibidoResult.unidades_por_bulto,
           } as Producto;
         })
       );

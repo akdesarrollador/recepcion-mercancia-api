@@ -1,7 +1,7 @@
 import readSQL from "../helpers/readSQL";
 import sql from "mssql";
 import RecepcionModel from "./RecepcionModel";
-import { poolAK } from "../pool";
+import { poolaBC } from "../pool";
 import renameBillImg from "../helpers/renameBillImg";
 import fs from "fs";
 import path from "path";
@@ -35,7 +35,7 @@ class ComprobanteModel {
         throw new Error("La ruta de archivos no está configurada.");
       }
 
-      const transaction = new sql.Transaction(poolAK);
+      const transaction = new sql.Transaction(poolaBC);
       await transaction.begin();
       await transaction
         .request()

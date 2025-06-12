@@ -23,18 +23,24 @@ const productoRecibidoValidator = [
     .withMessage("La cantidad de ODC es requerida")
     .isNumeric()
     .withMessage("La cantidad de ODC debe ser un número"),
-  body("cantidad_recibida")
+  body("recibido")
     .exists()
     .notEmpty()
-    .withMessage("La cantidad de ODC es requerida")
+    .withMessage("La cantidad recibida es requerida")
     .isNumeric()
-    .withMessage("La cantidad de ODC debe ser un número"),
+    .withMessage("La cantidad recibida debe ser un número"),
+  body("unidades_por_bulto")
+    .exists()
+    .notEmpty()
+    .withMessage("Las unidades por bulto son requeridas")
+    .isNumeric()
+    .withMessage("Las unidades por bulto deben ser un número"),
   body("recepcion")
     .exists()
     .notEmpty()
-    .withMessage("El número de orden es requerido")
+    .withMessage("El número de recepción es requerido")
     .isInt()
-    .withMessage("El número de orden debe ser un número entero")
+    .withMessage("El número de recepción debe ser un número entero"),
 ];
 
 export default productoRecibidoValidator;
