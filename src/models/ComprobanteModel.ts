@@ -29,7 +29,6 @@ class ComprobanteModel {
       const renamedFileName = newName + extension;
 
       if (config.PATH_FILES) {
-        console.log("RAW PATH_FILES:", JSON.stringify(config.PATH_FILES)); //
         try {
           await fs.promises.access(config.PATH_FILES, fs.constants.W_OK); //
         } catch (err: any) {
@@ -40,7 +39,6 @@ class ComprobanteModel {
         const savePath = path.join(config.PATH_FILES, renamedFileName);
         try {
           await fs.promises.writeFile(savePath, file.buffer);
-          console.log("Archivo guardado en:", savePath);
         } catch (err) {
           console.error("Error guardando el archivo:", err);
           throw err; // deja que el catch externo te lo capture si quieres
