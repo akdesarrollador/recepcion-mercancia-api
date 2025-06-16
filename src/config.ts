@@ -10,7 +10,6 @@ const requiredEnvVars = [
   "DB_NAME_aBC",
   "DB_HOST",
   "DB_PORT",
-  "PATH_FILES",
 ];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
@@ -20,7 +19,6 @@ for (const envVar of requiredEnvVars) {
 
 const config = {
   PORT: process.env.PORT || 5080,
-  PATH_FILES: process.env.PATH_FILES,
 };
 
 export default config;

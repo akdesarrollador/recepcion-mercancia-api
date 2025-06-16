@@ -11,14 +11,13 @@ class RecepcionController {
         proveedor,
         sucursal
       );
+
       if (success) {
-        res
-          .status(201)
-          .json({
-            message: "Recepción creada exitosamente",
-            recepcion: id,
-            confirmacion: confirmation,
-          });
+        res.status(201).json({
+          message: "Recepción creada exitosamente",
+          recepcion: id,
+          confirmacion: confirmation,
+        });
       }
     } catch (error: any) {
       res.status(500).json({ error: error.message });

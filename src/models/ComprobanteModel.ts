@@ -5,7 +5,7 @@ import { poolaBC } from "../pool";
 import renameBillImg from "../helpers/renameBillImg";
 import fs from "fs";
 import path from "path";
-import config from "../config";
+import os from "os";
 
 class ComprobanteModel {
   static async create(
@@ -28,24 +28,17 @@ class ComprobanteModel {
       const newName = renameBillImg(location, numeroOrden);
       const renamedFileName = newName + extension;
 
-      if (config.PATH_FILES) {
-        // try {
-        //   await fs.promises.access(config.PATH_FILES, fs.constants.W_OK); //
-        // } catch (err: any) {
-        //   console.error("No puedo acceder a la ruta:", err);
-        //   throw new Error(`Ruta inaccesible: ${err.message}`);
-        // }
+      // Guardar en la carpeta facturas-recepcion dentro de Documentos del usuario
+      const documentsPath = path.join(
+        os.homedir(),
+        "Documents",
+        "facturas-recepcion"
+      );
+      const savePath = path.join(documentsPath, renamedFileName);
 
-        const savePath = path.join(config.PATH_FILES, renamedFileName);
-        try {
-          await fs.promises.writeFile(savePath, file.buffer);
-        } catch (err) {
-          console.error("Error guardando el archivo:", err);
-          throw err; // deja que el catch externo te lo capture si quieres
-        }
-      } else {
-        throw new Error("La ruta de archivos no está configurada.");
-      }
+      // Crear la carpeta si no existe
+      await fs.promises.mkdir(path.dirname(savePath), { recursive: true });
+      await fs.promises.writeFile(savePath, file.buffer);
 
       const transaction = new sql.Transaction(poolaBC);
       await transaction.begin();
