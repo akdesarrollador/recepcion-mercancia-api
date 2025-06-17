@@ -14,9 +14,11 @@ class ComprobanteModel {
     location: string,
     numeroOrden: string
   ): Promise<boolean> {
-    let transaction: sql.Transaction | null = null;
-    let client: ftp.Client | null = null;
-    let renamedFileName = "";
+    const transaction = new sql.Transaction(poolaBC);
+    await transaction.begin();
+
+    const client = new ftp.Client();
+    client.ftp.verbose = false;
 
     try {
       const recepcionExists = await RecepcionModel.exists(recepcion);
@@ -30,11 +32,9 @@ class ComprobanteModel {
       );
 
       const newName = renameBillImg(location, numeroOrden);
-      renamedFileName = newName + extension;
+      const renamedFileName = newName + extension;
 
       // Enviar el archivo por FTP a un servidor remoto
-      client = new ftp.Client();
-      client.ftp.verbose = false;
 
       await client.access({
         host: config.FTP.SERVER,
@@ -46,8 +46,6 @@ class ComprobanteModel {
       const stream = Readable.from(file.buffer);
       await client.uploadFrom(stream, renamedFileName);
 
-      transaction = new sql.Transaction(poolaBC);
-      await transaction.begin();
       await transaction
         .request()
         .input("url", sql.VarChar, renamedFileName)
@@ -65,15 +63,6 @@ class ComprobanteModel {
             "Error al hacer rollback de la transacción:",
             rollbackError
           );
-        }
-      }
-
-      // Intentar eliminar el archivo subido si hubo error después de la subida
-      if (client && renamedFileName) {
-        try {
-          await client.remove(renamedFileName);
-        } catch (cleanupError) {
-          console.error("Error al limpiar archivo subido:", cleanupError);
         }
       }
 
