@@ -9,7 +9,8 @@ class RecepcionModel {
   static async create(
     numeroOrden: string,
     proveedor: string,
-    sucursal: string
+    sucursal: string,
+    codigoProveedor: string
   ): Promise<{ success: boolean; id?: number; confirmation?: string }> {
     const reception = await this.getByOrderNumber(numeroOrden);
     const lastModified = reception?.fecha_recepcion;
@@ -39,6 +40,7 @@ class RecepcionModel {
         .input("proveedor", sql.VarChar, proveedor)
         .input("sucursal", sql.VarChar, sucursal)
         .input("confirmacion", sql.VarChar, confirmationHash)
+        .input("codigo_proveedor", sql.VarChar, codigoProveedor)
         .query(readSQL("recepcion/create"));
 
       await transaction.commit();

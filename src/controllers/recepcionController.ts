@@ -3,13 +3,14 @@ import RecepcionModel from "../models/RecepcionModel";
 
 class RecepcionController {
   async create(req: Request, res: Response): Promise<void> {
-    const { numeroOrden, proveedor, sucursal } = req.body;
+    const { numeroOrden, proveedor, sucursal, codigoProveedor } = req.body;
 
     try {
       const { success, id, confirmation } = await RecepcionModel.create(
         numeroOrden,
         proveedor,
-        sucursal
+        sucursal,
+        codigoProveedor
       );
 
       if (success) {
