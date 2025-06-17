@@ -8,7 +8,7 @@ class ComprobanteController {
       const storage = multer.memoryStorage();
       const upload = multer({ storage });
 
-      upload.array("comprobantes")(req, res, async (err) => {
+      upload.array("comprobante")(req, res, async (err) => {
         if (
           !req.body.recepcion ||
           !req.body.location ||
@@ -32,10 +32,6 @@ class ComprobanteController {
             .json({ message: "No se recibieron archivos." });
         }
 
-        let exitosos = 0;
-        let fallidos = 0;
-        let errores: { filename: string; error: any }[] = [];
-
         for (const file of files) {
           try {
             await ComprobanteModel.create(
@@ -44,20 +40,14 @@ class ComprobanteController {
               req.body.location,
               req.body.numeroOrden
             );
-            exitosos++;
           } catch (error) {
-            fallidos++;
-            errores.push({ filename: file.originalname, error });
+            throw new Error(
+              `Error al procesar el archivo ${file.originalname}: ${error}`
+            );
           }
         }
 
-        return res.status(200).json({
-          message: "Archivos procesados",
-          cantidad: files.length,
-          exitosos,
-          fallidos,
-          errores,
-        });
+        return res.status(200).json({ message: "Archivo procesado" });
       });
     } catch (error) {
       return res

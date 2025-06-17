@@ -10,6 +10,9 @@ const requiredEnvVars = [
   "DB_NAME_aBC",
   "DB_HOST",
   "DB_PORT",
+  "FTP_SERVER",
+  "FTP_USER",
+  "FTP_PASS",
 ];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
@@ -19,6 +22,11 @@ for (const envVar of requiredEnvVars) {
 
 const config = {
   PORT: process.env.PORT || 5080,
+  FTP: {
+    SERVER: process.env.FTP_SERVER,
+    USER: process.env.FTP_USER,
+    PASS: process.env.FTP_PASS,
+  },
 };
 
 export default config;
