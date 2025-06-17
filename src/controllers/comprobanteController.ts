@@ -24,35 +24,26 @@ class ComprobanteController {
           return res
             .status(400)
             .json({ message: `Error al guardar los archivos: ${err}` });
-        const files = req.files as Express.Multer.File[];
 
-        if (!files || files.length === 0) {
-          return res
-            .status(400)
-            .json({ message: "No se recibieron archivos." });
+        const file = req.file as Express.Multer.File;
+
+        if (!file) {
+          return res.status(400).json({ message: "No se recibió el archivo." });
         }
 
-        for (const file of files) {
-          try {
-            await ComprobanteModel.create(
-              req.body.recepcion,
-              file,
-              req.body.location,
-              req.body.numeroOrden
-            );
-          } catch (error) {
-            throw new Error(
-              `Error al procesar el archivo ${file.originalname}: ${error}`
-            );
-          }
-        }
+        await ComprobanteModel.create(
+          req.body.recepcion,
+          file,
+          req.body.location,
+          req.body.numeroOrden
+        );
 
         return res.status(200).json({ message: "Archivo procesado" });
       });
     } catch (error) {
       return res
         .status(500)
-        .json({ error: `Error interno del servidor ${error}` });
+        .json({ error: `Error al crear el comprobante ${error}` });
     }
   }
 }

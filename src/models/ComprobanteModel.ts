@@ -34,8 +34,6 @@ class ComprobanteModel {
       const newName = renameBillImg(location, numeroOrden);
       const renamedFileName = newName + extension;
 
-      // Enviar el archivo por FTP a un servidor remoto
-
       await client.access({
         host: config.FTP.SERVER,
         user: config.FTP.USER,
