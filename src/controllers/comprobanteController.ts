@@ -25,18 +25,16 @@ class ComprobanteController {
             .status(400)
             .json({ message: `Error al guardar los archivos: ${err}` });
 
-        const file = req.file as Express.Multer.File;
+        const files = req.files as Express.Multer.File[];
 
-        if (!file) {
-          return res.status(400).json({ message: "No se recibió el archivo." });
+        for (const file of files) {
+          await ComprobanteModel.create(
+            req.body.recepcion,
+            file,
+            req.body.location,
+            req.body.numeroOrden
+          );
         }
-
-        await ComprobanteModel.create(
-          req.body.recepcion,
-          file,
-          req.body.location,
-          req.body.numeroOrden
-        );
 
         return res.status(200).json({ message: "Archivo procesado" });
       });
