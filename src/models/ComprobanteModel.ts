@@ -17,7 +17,7 @@ class ComprobanteModel {
     const transaction = new sql.Transaction(poolaBC);
     await transaction.begin();
 
-    const client = new ftp.Client();
+    const client = new ftp.Client(0);
     client.ftp.verbose = false;
 
     try {
