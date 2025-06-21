@@ -1,78 +1,56 @@
-import config from './config'
-import { server } from './app'
-import {poolAK, poolaBC } from './pool'
+import config from "./config";
+import { server } from "./app";
+import os from "os";
+import { printQueue } from "./services/printQueue";
+import { printerManager } from "./services/printerManager";
 
-server.listen(config.PORT, async () => {
-    console.log(`🚀Recepcion de mercancia API corriendo en el puerto ${config.PORT}`)
-    poolAK.connect()
-    .then(() => {
-        console.log(`Conectado a base de datos AK...`);
-    })
-    .catch(() => {
-        console.error(`Ha ocurrido un error al conectarse a la base de datos AK...`);
-    })
+server.listen(config.PORT, () => {
+  const interfaces = os.networkInterfaces();
+  const addresses = [];
+  for (const name of Object.keys(interfaces)) {
+    const ifaceList = interfaces[name];
+    if (ifaceList) {
+      for (const iface of ifaceList) {
+        if (iface.family === "IPv4" && !iface.internal) {
+          addresses.push(iface.address);
+        }
+      }
+    }
+  }
 
-    poolaBC.connect()
-    .then(() => {
-        console.log(`Conectado a base de datos aBC...`);
-    })
-    .catch(() => {
-        console.error(`Ha ocurrido un error al conectarse a la base de datos aBC...`);
-    });
-})
+  console.log("======================================");
+  console.log(`Server running on the following IPs:`);
+  addresses.forEach((ip) => {
+    console.log(`  http://${ip}:${config.PORT}`);
+  });
 
-process.on('unhandledRejection', (err: Error) => {
-    console.error('Unhandled Rejection:', err.message);
-    process.exit(1);
+  console.log("======================================");
+
+  setInterval(() => {
+    printQueue.cleanOldJobs(24);
+  }, 60 * 60 * 1000);
 });
 
-process.on('uncaughtException', (err: Error) => {
-    console.error('Uncaught Exception:', err.message);
-    process.exit(1);
+// Cleanup graceful
+const gracefulShutdown = () => {
+  console.log("🛑 Cerrando servidor...");
+  printQueue.stop();
+  printerManager.stop();
+  server.close(() => {
+    console.log("✅ Servidor cerrado correctamente");
+    process.exit(0);
+  });
+};
+
+process.on("SIGTERM", gracefulShutdown);
+process.on("SIGINT", gracefulShutdown);
+
+process.on("unhandledRejection", (err: Error) => {
+  console.error("Unhandled Rejection:", err.message);
+  process.exit(1);
 });
 
-process.on('SIGINT', () => {
-    console.log('SIGINT');
-    poolAK.close()
-    .then(() => {
-        console.log('Pool de conexiones cerrado...');
-        process.exit(0);
-    })
-    .catch((err) => {
-        console.error('Error al cerrar el pool de conexiones:', err);
-        process.exit(1);
-    });
-
-    poolaBC.close()
-    .then(() => {
-        console.log('Pool de conexiones aBC cerrado...');
-        process.exit(0);
-    })  
-    .catch((err) => {
-        console.error('Error al cerrar el pool de conexiones aBC:', err);
-        process.exit(1);
-    });
-});
-
-process.on('SIGTERM', () => {
-    console.log('SIGTERM');
-    poolAK.close()
-    .then(() => {
-        console.log('Pool de conexiones cerrado...');
-        process.exit(0);
-    })
-    .catch((err) => {
-        console.error('Error al cerrar el pool de conexiones:', err);
-        process.exit(1);
-    });
-
-    poolaBC.close()
-    .then(() => {
-        console.log('Pool de conexiones aBC cerrado...');
-        process.exit(0);
-    })
-    .catch((err) => {
-        console.error('Error al cerrar el pool de conexiones aBC:', err);
-        process.exit(1);
-    });
+process.on("uncaughtException", (err: Error) => {
+  console.error("Uncaught Exception:", err.message);
+  process.exit(1);
 });
