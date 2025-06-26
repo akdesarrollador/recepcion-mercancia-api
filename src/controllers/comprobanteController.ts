@@ -7,11 +7,18 @@ class ComprobanteController {
     try {
       const storage = multer.memoryStorage();
       const upload = multer({ storage });
+      const ubicacion = (req as any).ubicacion;
 
       upload.array("comprobantes")(req, res, async (err) => {
         if (!req.body.recepcion) {
           return res.status(400).json({
-            message: 'El campo recepcion es requerido en el form-data.',
+            message: "El campo recepcion es requerido en el form-data.",
+          });
+        }
+
+        if (!req.body.numeroOrden) {
+          return res.status(400).json({
+            message: "El campo numeroOrden es requerido en el form-data.",
           });
         }
 
@@ -29,11 +36,16 @@ class ComprobanteController {
 
         let exitosos = 0;
         let fallidos = 0;
-        let errores: { filename: string, error: any }[] = [];
+        let errores: { filename: string; error: any }[] = [];
 
         for (const file of files) {
           try {
-            await ComprobanteModel.create(req.body.recepcion, file);
+            await ComprobanteModel.create(
+              req.body.recepcion,
+              file,
+              ubicacion,
+              req.body.numeroOrden
+            );
             exitosos++;
           } catch (error) {
             fallidos++;
@@ -50,7 +62,9 @@ class ComprobanteController {
         });
       });
     } catch (error) {
-      return res.status(500).json({ error: `Error interno del servidor ${error}` });
+      return res
+        .status(500)
+        .json({ error: `Error interno del servidor ${error}` });
     }
   }
 }

@@ -6,11 +6,10 @@ import {
   Producto,
   Ubicacion,
 } from "../helpers/interfaces/ordencompra.interface";
+import formatProductName from "../helpers/formatProductName";
 
 class OrdenCompraModel {
-  static async get(
-    numeroOrden: string,
-  ): Promise<OrdenCompra | null> {
+  static async get(numeroOrden: string): Promise<OrdenCompra | null> {
     try {
       const result = await poolaBC
         .request()
@@ -41,9 +40,7 @@ class OrdenCompraModel {
         fechaRE: data.dFechare,
       } as OrdenCompra;
     } catch (error: any) {
-      return Promise.reject(
-        new Error(`${error}`)
-      );
+      return Promise.reject(new Error(`${error}`));
     }
   }
 
@@ -57,7 +54,9 @@ class OrdenCompraModel {
       return result.recordset.length > 0;
     } catch (error) {
       return Promise.reject(
-        new Error(`Error al verificar la existencia de la orden de compra: ${error}`)
+        new Error(
+          `Error al verificar la existencia de la orden de compra: ${error}`
+        )
       );
     }
   }
@@ -77,7 +76,7 @@ class OrdenCompraModel {
 
       return result.recordset.map((item: any) => ({
         codigo: item.codigo_producto,
-        descripcion: item.descripcion,
+        descripcion: formatProductName(item.descripcion),
         cantidad: item.cantidad,
         total_solicitado: item.total_solicitado || 0, // Asignar 0 si no existe
       })) as Producto[];

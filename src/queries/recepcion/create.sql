@@ -1,6 +1,6 @@
 INSERT INTO 
-	recepcion (numero_orden, proveedor, fecha_recepcion, fecha_actualizacion)
+	recepcion (proveedor, sucursal, fecha_recepcion, procesado, confirmacion)
 OUTPUT INSERTED.id
 VALUES (
-	@numero_orden, @proveedor, GETDATE(), GETDATE()
+	@proveedor, @sucursal, GETDATE(), 0, @confirmacion
 );

@@ -1,4 +1,4 @@
-import { poolAK } from "../pool";
+import { poolaBC } from "../pool";
 import readSQL from "../helpers/readSQL";
 import sql from "mssql";
 import RecepcionModel from "./RecepcionModel";
@@ -9,6 +9,7 @@ class ProductoRecibidoModel {
     descripcion: string,
     cantidad_odc: number,
     cantidad_recibida: number,
+    unidades_por_bulto: number,
     receptor: number,
     recepcion: number
   ): Promise<boolean> {
@@ -21,11 +22,13 @@ class ProductoRecibidoModel {
 
     if (cantidad_recibida > cantidad_odc) {
       return Promise.reject(
-        new Error("La cantidad recibida no puede ser mayor a la cantidad de la orden.")
+        new Error(
+          "La cantidad recibida no puede ser mayor a la cantidad de la orden."
+        )
       );
     }
 
-    const transaction = new sql.Transaction(poolAK);
+    const transaction = new sql.Transaction(poolaBC);
     await transaction.begin();
 
     try {
@@ -34,7 +37,8 @@ class ProductoRecibidoModel {
         .input("codigo", sql.VarChar, codigo)
         .input("descripcion", sql.VarChar, descripcion)
         .input("cantidad_odc", sql.Numeric, cantidad_odc)
-        .input("cantidad_recibida", sql.Numeric, cantidad_recibida)
+        .input("recibido", sql.Numeric, cantidad_recibida)
+        .input("unidades_por_bulto", sql.Numeric, unidades_por_bulto)
         .input("receptor", sql.Int, receptor)
         .input("recepcion", sql.Int, recepcion)
         .query(readSQL("producto-recibido/create"));
@@ -43,15 +47,13 @@ class ProductoRecibidoModel {
       return true;
     } catch (error) {
       await transaction.rollback();
-      return Promise.reject(
-        new Error(`${error}`)
-      );
+      return Promise.reject(new Error(`${error}`));
     }
   }
 
   static async exists(codigo: string, recepcion: number): Promise<boolean> {
     try {
-      const result = await poolAK
+      const result = await poolaBC
         .request()
         .input("codigo", sql.VarChar, codigo)
         .input("recepcion", sql.Int, recepcion)
@@ -60,7 +62,9 @@ class ProductoRecibidoModel {
       return result.recordset.length > 0;
     } catch (error) {
       return Promise.reject(
-        new Error(`Error al verificar la existencia del producto recibido: ${error}`)
+        new Error(
+          `Error al verificar la existencia del producto recibido: ${error}`
+        )
       );
     }
   }
