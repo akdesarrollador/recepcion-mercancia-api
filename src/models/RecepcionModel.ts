@@ -6,8 +6,9 @@ import sql from "mssql";
 class RecepcionModel {
   static async create(
     proveedor: string,
+    codigoProveedor: string,
     sucursal: string
-  ): Promise<{ success: boolean; id?: number }> {
+  ): Promise<{ success: boolean; id?: number; confirmacion?: string }> {
     const transaction = new sql.Transaction(poolaBC);
     await transaction.begin();
 
@@ -16,6 +17,7 @@ class RecepcionModel {
       const result = await transaction
         .request()
         .input("proveedor", sql.VarChar, proveedor)
+        .input("cCodigoProveedor", sql.VarChar, codigoProveedor)
         .input("sucursal", sql.VarChar, sucursal)
         .input("confirmacion", sql.VarChar, confirmacion)
         .query(readSQL("recepcion/create"));
@@ -23,7 +25,7 @@ class RecepcionModel {
       await transaction.commit();
 
       const id = result.recordset?.[0]?.id;
-      return { success: true, id };
+      return { success: true, id, confirmacion };
     } catch (error) {
       await transaction.rollback();
       return Promise.reject(new Error(`Error al crear la recepcion: ${error}`));

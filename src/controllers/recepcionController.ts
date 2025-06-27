@@ -5,13 +5,16 @@ import ProductoRecibidoModel from "../models/ProductoRecibidoModel";
 
 class RecepcionController {
   async create(req: Request, res: Response): Promise<void> {
-    const { ordenes, proveedor, productos_recibidos } = req.body;
+    const { ordenes, proveedor, codigoProveedor, productos_recibidos } = req.body;
     const ubicacion = (req as any).ubicacion;
     const user = (req as any).user;
 
     try {
-      const { success: createRecepcionSuccess, id: recepcionID } =
-        await RecepcionModel.create(proveedor, ubicacion);
+      const {
+        success: createRecepcionSuccess,
+        id: recepcionID,
+        confirmacion,
+      } = await RecepcionModel.create(proveedor, codigoProveedor, ubicacion);
 
       if (!createRecepcionSuccess || !recepcionID) {
         res.status(500).json({
@@ -40,6 +43,7 @@ class RecepcionController {
       res.status(201).json({
         message: "Recepción creada exitosamente",
         recepcion: recepcionID,
+        confirmacion,
       });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
