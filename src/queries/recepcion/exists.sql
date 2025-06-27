@@ -1,6 +1,6 @@
 SELECT 
     id
 FROM
-    recepcion
+    WEB_RECEPCION
 WHERE
     id = @id

@@ -1,5 +1,5 @@
 INSERT INTO 
-	producto_recibido (codigo, descripcion, cantidad_odc, recibido, unidades_por_bulto, receptor, recepcion)
+	WEB_PRODUCTO_RECIBIDO (codigo, descripcion, cantidad_odc, recibido, unidades_por_bulto, receptor, recepcion)
 VALUES
 	(
 		@codigo, 

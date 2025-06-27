@@ -7,7 +7,8 @@ class RecepcionModel {
   static async create(
     proveedor: string,
     codigoProveedor: string,
-    sucursal: string
+    sucursal: string,
+    duracion: string
   ): Promise<{ success: boolean; id?: number; confirmacion?: string }> {
     const transaction = new sql.Transaction(poolaBC);
     await transaction.begin();
@@ -20,6 +21,7 @@ class RecepcionModel {
         .input("cCodigoProveedor", sql.VarChar, codigoProveedor)
         .input("sucursal", sql.VarChar, sucursal)
         .input("confirmacion", sql.VarChar, confirmacion)
+        .input("duracion", sql.VarChar, duracion)
         .query(readSQL("recepcion/create"));
 
       await transaction.commit();
@@ -27,6 +29,7 @@ class RecepcionModel {
       const id = result.recordset?.[0]?.id;
       return { success: true, id, confirmacion };
     } catch (error) {
+      console.log(error);
       await transaction.rollback();
       return Promise.reject(new Error(`Error al crear la recepcion: ${error}`));
     }

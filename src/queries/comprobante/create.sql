@@ -1,5 +1,5 @@
 INSERT INTO
-    comprobante (url, recepcion)
+    WEB_COMPROBANTE (url, recepcion)
 VALUES
     (
         @url, @recepcion

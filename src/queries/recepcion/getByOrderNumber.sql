@@ -5,6 +5,6 @@ SELECT
     fecha_recepcion,
     fecha_actualizacion 
 FROM 
-    recepcion 
+    WEB_RECEPCION 
 WHERE 
     numero_orden = @numero_orden

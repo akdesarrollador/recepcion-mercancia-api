@@ -1,7 +1,7 @@
 SELECT 
     id 
 FROM 
-    producto_recibido
+    WEB_PRODUCTO_RECIBIDO
 WHERE 
     recepcion = @recepcion 
 AND 

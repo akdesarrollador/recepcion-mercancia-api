@@ -18,7 +18,16 @@ export const validateCreateRecepcion = [
     .isString()
     .withMessage("El proveedor debe ser una cadena de texto")
     .notEmpty()
-    .withMessage("El proveedor no puede estar vacío"),
+    .withMessage("El proveedor no puede estar vacío")
+    .isLength({ max: 100 })
+    .withMessage("El proveedor no puede exceder los 100 caracteres"),
+  body("codigoProveedor")
+    .isString()
+    .withMessage("El código del proveedor debe ser una cadena de texto")
+    .notEmpty()
+    .withMessage("El código del proveedor no puede estar vacío")
+    .isLength({ max: 10 })
+    .withMessage("El código del proveedor no puede exceder los 10 caracteres"),
   body("productos_recibidos")
     .isArray()
     .withMessage("Los productos recibidos deben ser un arreglo")
@@ -40,4 +49,11 @@ export const validateCreateRecepcion = [
       }
       return true;
     }),
+  body("duracion")
+    .isString()
+    .withMessage("La duración debe ser una cadena de texto")
+    .notEmpty()
+    .withMessage("La duración no puede estar vacía")
+    .isLength({ max: 20 })
+    .withMessage("La duración no puede exceder los 20 caracteres"),
 ];
