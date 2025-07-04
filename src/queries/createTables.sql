@@ -1,5 +1,5 @@
 CREATE TABLE WEB_RECEPCION (
-	id int NOT NULL,
+	id int IDENTITY(1,1) NOT NULL,
 	proveedor varchar(100) COLLATE Modern_Spanish_CI_AS NOT NULL,
 	sucursal varchar(5) COLLATE Modern_Spanish_CI_AS NOT NULL,
 	fecha_recepcion datetime NOT NULL,
@@ -7,6 +7,7 @@ CREATE TABLE WEB_RECEPCION (
 	confirmacion varchar(15) COLLATE Modern_Spanish_CI_AS NOT NULL,
 	cCodigoProveedor varchar(10) COLLATE Modern_Spanish_CI_AS DEFAULT '' NOT NULL,
 	duracion varchar(20) COLLATE Modern_Spanish_CI_AS NULL,
+	kardex bit DEFAULT 0 NULL,
 	CONSTRAINT PK__recepcio__3213E83FF559B5F2 PRIMARY KEY (id)
 );
 
@@ -19,7 +20,7 @@ CREATE TABLE WEB_COMPROBANTE (
 );
 
 CREATE TABLE WEB_PRODUCTO_RECIBIDO (
-	id int NOT NULL,
+	id int IDENTITY(1,1) NOT NULL,
 	codigo varchar(15) COLLATE Modern_Spanish_CI_AS NOT NULL,
 	descripcion varchar(120) COLLATE Modern_Spanish_CI_AS NOT NULL,
 	cantidad_odc decimal(18,0) NOT NULL,
@@ -32,7 +33,7 @@ CREATE TABLE WEB_PRODUCTO_RECIBIDO (
 );
 
 CREATE TABLE WEB_RECEPCION_ODC (
-	id int NOT NULL,
+	id int IDENTITY(1,1) NOT NULL,
 	recepcion int NOT NULL,
 	odc char(10) COLLATE Modern_Spanish_CI_AS NOT NULL
 	CONSTRAINT FK_RECEPCION FOREIGN KEY (recepcion) REFERENCES WEB_RECEPCION(id)

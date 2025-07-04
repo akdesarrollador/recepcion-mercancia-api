@@ -24,7 +24,7 @@ export interface Proveedor {
 export interface Producto {
   codigo: string,
   descripcion: string;
-  cantidad: number;
+  cantidad_asignada: number;
   total_solicitado?: number;
 }
 

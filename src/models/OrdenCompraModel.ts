@@ -77,7 +77,7 @@ class OrdenCompraModel {
       return result.recordset.map((item: any) => ({
         codigo: item.codigo_producto,
         descripcion: formatProductName(item.descripcion),
-        cantidad: item.cantidad,
+        cantidad_asignada: item.cantidad,
         total_solicitado: item.total_solicitado || 0, // Asignar 0 si no existe
       })) as Producto[];
     } catch (error) {
